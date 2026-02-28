@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "migrate": "sequelize-cli db:migrate --migrations-path migrations_cjs",
+    "migrate:undo": "sequelize-cli db:migrate:undo --migrations-path migrations_cjs"
   },
   "author": "Koiava Givi",
   "license": "ISC",
@@ -13,9 +15,13 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "pg": "^8.19.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "sequelize-cli": "^6.6.5"
   }
 }
