@@ -1,0 +1,837 @@
+openapi: 3.0.3
+info:
+  title: OrderFlow API
+  version: 0.1.0
+  description: Contract-first API. Telegram Mini App auth (init data + JWT)
+servers:
+  - url: /api
+
+tags:
+  - name: Auth
+    description: Authentication & current user
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Authorization header format: "Bearer <accessToken>".
+        JWT payload structure is described in components/schemas/JwtPayload.
+  
+  schemas:
+    JwtPayload:
+      type: object
+      additionalProperties: false
+      required: [sub, uid, role, iat, exp]
+      properties:
+        sub:
+          type: string
+          description: Telegram user id (subject).
+          example: "123456789"
+        uid:
+          type: integer
+          description: Internal user id in DB.
+          example: 7
+        role:
+          type: string
+          description: User role.
+          enum: [owner, manufacturer]
+        iat:
+          type: integer
+          description: Issued At (unix timestamp, seconds).
+          example: 1772352000
+        exp:
+          type: integer
+          description: Expiration time (unix timestamp, seconds).
+          example: 1772956800
+
+    UserRole:
+      type: string
+      enum: [owner, manufacturer]
+
+    UserPublic:
+      type: object
+      additionalProperties: false
+      required: [telegramId, role]
+      properties:
+        telegramId:
+          type: string
+          description: Telegram user id as string to avoid JS precision issues
+          example: "123456789"
+        role:
+          $ref: "#/components/schemas/UserRole"
+        name:
+          oneOf:
+            - type: string
+            - type: "null"
+          example: "Givi"
+
+    OrderStatus:
+      type: string
+      enum: [waiting, in_progress, completed]
+
+    Order:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - suction_size
+        - liquid_size
+        - length
+        - quantity
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          example: 101
+        suction_size:
+          type: string
+          example: "3/4"
+        liquid_size:
+          type: string
+          example: "3/8"
+        length:
+          type: number
+          format: float
+          example: 12.5
+        quantity:
+          type: integer
+          example: 5
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        comment:
+          type: string
+          nullable: true
+          example: "Срочно"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-01T08:15:30.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-03-01T10:20:00.000Z"
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Set when order becomes completed
+          example: "2026-03-01T12:30:00.000Z"
+
+    OrdersResponse:
+      type: object
+      additionalProperties: false
+      required: [orders]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+
+    CreateOrderRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - suction_size
+        - liquid_size
+        - length
+        - quantity
+        - price_per_meter
+      properties:
+        suction_size:
+          type: string
+          description: Suction Tube Size
+          example: "3/4"
+        liquid_size:
+          type: string
+          description: Liquid Tube Size
+          example: "3/8"
+        length:
+          type: number
+          format: float
+          description: Length (m)
+          example: 10
+        quantity:
+          type: integer
+          description: Quantity (pcs)
+          example: 5
+        comment:
+          type: string
+          nullable: true
+          description: Comment (optional)
+          example: "С гофрой, двойной кабель"
+        price_per_meter:
+          type: number
+          format: float
+          description: Price per Meter (₪)
+          example: 2.5
+
+    CreateOrderResponse:
+      type: object
+      additionalProperties: false
+      required: [order]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+
+    UpdateOrderRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - suction_size
+        - liquid_size
+        - length
+        - quantity
+        - status
+      properties:
+        id:
+          type: integer
+          example: 101
+        suction_size:
+          type: string
+          example: "3/4"
+        liquid_size:
+          type: string
+          example: "3/8"
+        length:
+          type: number
+          format: float
+          example: 12
+        quantity:
+          type: integer
+          description: Quantity (pcs)
+          example: 5
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        comment:
+          type: string
+          nullable: true
+          description: Optional comment
+          example: "Поменять на другой размер"
+
+    UpdateOrderResponse:
+      type: object
+      additionalProperties: false
+      required: [order]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+        
+    DeleteOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [id]
+      properties:
+        id:
+          type: integer
+          example: 10
+
+    DeleteOrderResponse:
+      type: object
+      additionalProperties: false
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    CompleteOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [id, completed_quantity]
+      properties:
+        id:
+          type: integer
+          example: 101
+        completed_quantity:
+          type: integer
+          minimum: 1
+          example: 5
+    
+    CompleteOrderResponse:
+      type: object
+      additionalProperties: false
+      required: [deleted, order]
+      properties:
+        deleted:
+          type: boolean
+          description: If true, the order should be removed from active orders list.
+          example: true
+        order:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Order"
+          description: Updated active order (remaining quantity). Null if order is completed and removed
+          
+    AuthTelegramRequest:
+      type: object
+      additionalProperties: false
+      required: [initData]
+      properties:
+        initData:
+          type: string
+          description: Telegram WebApp initData string from Telegram.WebApp.initData
+          example: "query_id=AAH...&user=%7B...%7D&auth_date=1700000000&hash=..."
+
+    AuthTelegramResponse:
+      type: object
+      additionalProperties: false
+      required: [accessToken, user]
+      properties:
+        accessToken:
+          type: string
+          description: Bearer JWT access token.
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: "#/components/schemas/UserPublic"
+
+    MeResponse:
+      type: object
+      additionalProperties: false
+      required: [user]
+      properties:
+        user:
+          $ref: "#/components/schemas/UserPublic"
+
+    ContactInfo:
+      type: object
+      additionalProperties: false
+      required: [telegram, email]
+      properties:
+        telegram:
+          type: string
+          example: "@sohumelivar"
+        email:
+          type: string
+          format: email
+          example: "sohumelivar@gmail.com"
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: "FORBIDDEN"
+        message:
+          type: string
+          example: "У вас нет доступа к этому приложению."
+        contact:
+          $ref: "#/components/schemas/ContactInfo"
+
+    UpdateOrderStatusRequest:
+      type: object
+      additionalProperties: false
+      required: [id, status]
+      properties:
+        id:
+          type: integer
+          example: 101
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+
+    UpdateOrderStatusResponse:
+      type: object
+      additionalProperties: false
+      required: [order]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+
+    StatsPeriod:
+      type: string
+      enum: [last_week, last_month, all_time, custom]
+
+    PaymentStatus:
+      type: string
+      enum: [pending, accepted, rejected]
+
+    PendingPaymentItem:
+      type: object
+      additionalProperties: false
+      required: [date, amount, status]
+      properties:
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: float
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
+
+    Summary:
+      type: object
+      additionalProperties: false
+      required: [total_completed, total_paid, outstanding_debt, pending_payments]
+      properties:
+        total_completed:
+          type: number
+          format: float
+        total_paid:
+          type: number
+          format: float
+        outstanding_debt:
+          type: number
+          format: float
+        pending_payments:
+          type: object
+          additionalProperties: false
+          required: [payments]
+          properties:
+            payments:
+              type: array
+              items:
+                $ref: "#/components/schemas/PendingPaymentItem"
+
+    PipeTypeOrderItem:
+      type: object
+      additionalProperties: false
+      required: [display_name, quantity, total_meter, amount]
+      properties:
+        display_name:
+          type: string
+        quantity:
+          type: integer
+        total_meter:
+          type: number
+          format: float
+        amount:
+          type: number
+          format: float
+
+    PipeTypeTotal:
+      type: object
+      additionalProperties: false
+      required: [quantity, meter, amount]
+      properties:
+        quantity:
+          type: integer
+        meter:
+          type: number
+          format: float
+        amount:
+          type: number
+          format: float
+
+    PipeTypeStatistics:
+      type: object
+      additionalProperties: false
+      required: [orders, total]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipeTypeOrderItem"
+        total:
+          $ref: "#/components/schemas/PipeTypeTotal"
+
+    PaymentHistoryItem:
+      type: object
+      additionalProperties: false
+      required: [date, amount, status]
+      properties:
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: float
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
+
+    StatsResponse:
+      type: object
+      additionalProperties: false
+      required: [summary, pipe_type_statistics, payment_history]
+      properties:
+        summary:
+          $ref: "#/components/schemas/Summary"
+        pipe_type_statistics:
+          $ref: "#/components/schemas/PipeTypeStatistics"
+        payment_history:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentHistoryItem"
+    
+  responses:
+    ForbiddenWithContact:
+      description: Access denied (user not in allowlist or role not permitted).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            forbidden:
+              value:
+                error: "FORBIDDEN"
+                message: "У вас нет доступа к этому приложению."
+                contact:
+                  telegram: "@sohumelivar"
+                  email: "sohumelivar@gmail.com"
+
+    Unauthorized:
+      description: Missing/invalid JWT.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            unauthorized:
+              value:
+                error: "UNAUTHORIZED"
+                message: "Требуется авторизация."
+                contact:
+                  telegram: "@sohumelivar"
+                  email: "sohumelivar@gmail.com"
+
+paths:
+  /auth/telegram:
+    post:
+      tags: [Auth]
+      summary: Authenticate via Telegram Mini App initData and get JWT
+      operationId: authTelegram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthTelegramRequest"
+      responses:
+        "200":
+          description: Auth success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTelegramResponse"
+        "400":
+          description: Invalid request (e.g., initData missing/invalid)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badRequest:
+                  value:
+                    error: "BAD_REQUEST"
+                    message: "Некорректный initData."
+                    contact:
+                      telegram: "@sohumelivar"
+                      email: "sohumelivar@gmail.com"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+
+  /me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+
+  /orders/create:
+    post:
+      summary: Create order
+      description: >
+        Authenticated endpoint.
+        User is identified from JWT access token (uid, role).
+        owner_id is assigned automatically on server side.
+        Client must NOT send any user identifiers in request body.
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "200":
+          description: Created order (price_per_meter is stored in DB but not returned)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateOrderResponse"
+        "400":
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+
+  /orders/active:
+    get:
+      summary: Get active orders (waiting + in_progress)
+      operationId: getActiveOrders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Active orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+
+  /orders/completed:
+    get:
+      summary: Get completed orders
+      operationId: getCompletedOrders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Completed orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+
+  /orders/update:
+    patch:
+      summary: Update order
+      description: >
+        Authenticated endpoint.
+        User is identified from JWT access token (uid, role).
+        Server verifies that the user has permission to modify the order.
+        Client must NOT send any user identifiers in request body.
+      operationId: updateOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderRequest"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateOrderResponse"
+        "400":
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /orders/delete:
+    delete:
+      summary: Delete order
+      description: >
+        Authenticated endpoint.
+        User is identified from JWT access token (uid, role).
+        Server verifies that the user has permission to delete the order.
+        Client must NOT send any user identifiers in request body.
+      operationId: deleteOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteOrderRequest"
+      responses:
+        "200":
+          description: Order deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteOrderResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /orders/update-status:
+    patch:
+      summary: Update order status
+      description: >
+        Authenticated endpoint.
+        User is identified from JWT access token (uid, role).
+        Server verifies that the user has permission to change the order status.
+        Client must NOT send any user identifiers in request body.
+      operationId: updateOrderStatus
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusRequest"
+      responses:
+        "200":
+          description: Updated order after status change
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateOrderStatusResponse"
+        "400":
+          description: Invalid request or invalid status transition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /orders/complete:
+    patch:
+      summary: Complete order (full or partial)
+      description: >
+        Authenticated endpoint.
+        User is identified from JWT access token (uid, role).
+        Full completion: status becomes completed and completed_at is set to now.
+        Partial completion: server reduces quantity in the original order; it remains active.
+        Completed order is not returned.
+        Client must NOT send any user identifiers in request body.
+      operationId: completeOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteOrderRequest"
+      responses:
+        "200":
+          description: Completion result for active list UI
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteOrderResponse"
+        "400":
+          description: Invalid request or invalid quantity (e.g., completed_quantity > order.quantity)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stats:
+    get:
+      summary: Get stats data
+      description: >
+        Authenticated endpoint.
+        Authorization is required in header (Bearer accessToken).
+        Query:
+        - period is optional; default is last_month.
+        - if period=custom, month and year are required.
+      operationId: getStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: period
+          required: false
+          schema:
+            $ref: "#/components/schemas/StatsPeriod"
+          description: Default is last_month
+
+        - in: query
+          name: month
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: Required if period=custom
+
+        - in: query
+          name: year
+          required: false
+          schema:
+            type: integer
+            minimum: 2020
+          description: Required if period=custom
+      responses:
+        "200":
+          description: Stats response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsResponse"
+        "400":
+          description: Invalid period or missing month/year for custom
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenWithContact"
