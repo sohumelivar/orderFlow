@@ -4,7 +4,7 @@ info:
   version: 0.1.0
   description: Contract-first API. Telegram Mini App auth (init data + JWT)
 servers:
-  - url: /api
+  - url: http://localhost:3001/api
 
 tags:
   - name: Auth
