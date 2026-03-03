@@ -1,17 +1,17 @@
-import { User, Order, PipePair } from '../../models/index.js';
+import { Order, PipePair } from '../../models/index.js';
 import ApiError from '../../src/utils/ApiError.js';
 
-class OrderController {
+class CreateOrderController {
     async createOrder (req, res, next) {
         try {
             const data = req.body;
             if (!data) return next(ApiError.badRequest('Invalid request'));
-            const pipe_pair = (await PipePair.findOne({
+            const pipe_pair = await PipePair.findOne({
                 where: {
                     suction_size: data.suction_size,
                     liquid_size: data.liquid_size,
                 }
-            }));
+            });
 
             if (!pipe_pair) return next(ApiError.badRequest('Invalid request'));
 
@@ -32,12 +32,12 @@ class OrderController {
                 ]
             })
             
-            res.json({
+            return res.json({
                 order: {
                     id: orderBd.id,
                     suction_size: String(orderBd.PipePair.suction_size),
                     liquid_size: String(orderBd.PipePair.liquid_size),
-                    length: orderBd.length,
+                    length: Number(orderBd.length),
                     quantity: orderBd.quantity,
                     status: orderBd.status,
                     created_at: orderBd.created_at,
@@ -52,4 +52,4 @@ class OrderController {
     };
 };
 
-export default new OrderController();
+export default new CreateOrderController();

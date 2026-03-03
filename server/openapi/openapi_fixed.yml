@@ -194,7 +194,6 @@ components:
       - liquid_size
       - length
       - quantity
-      - status
       properties:
         id:
           type: integer
@@ -213,8 +212,6 @@ components:
           type: integer
           description: Quantity (pcs)
           example: 5
-        status:
-          $ref: '#/components/schemas/OrderStatus'
         comment:
           type: string
           nullable: true

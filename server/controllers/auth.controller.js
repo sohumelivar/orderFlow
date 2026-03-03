@@ -28,7 +28,7 @@ class AuthController {
         } catch (error) {
             return (next(error));
         }
-    };
+    }
 };
 
 export default new AuthController();
