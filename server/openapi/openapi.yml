@@ -256,17 +256,11 @@ components:
     CompleteOrderResponse:
       type: object
       additionalProperties: false
-      required: [deleted, order]
       properties:
-        deleted:
+        completed:
           type: boolean
           description: If true, the order should be removed from active orders list.
           example: true
-        order:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/Order"
-          description: Updated active order (remaining quantity). Null if order is completed and removed
           
     AuthTelegramRequest:
       type: object

@@ -2,7 +2,7 @@ import { Order, PipePair } from '../../models/index.js';
 import ApiError from '../../src/utils/ApiError.js';
 
 class GetActiveOrdersController {
-    async getActive (req, res, next) {
+    async getActiveOrders (req, res, next) {
         try {
             const orders = await Order.findAll({
                 order: [['created_at', 'DESC']],
