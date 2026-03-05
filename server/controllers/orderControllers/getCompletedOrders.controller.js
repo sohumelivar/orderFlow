@@ -1,12 +1,11 @@
 import { Order, PipePair } from '../../models/index.js';
-import { Op } from 'sequelize';
 
-class GetActiveOrdersController {
-    async getActiveOrders (req, res, next) {
+class GetCompletedOrdersController {
+    async getCompletedOrders (req, res, next) {
         try {
             const orders = await Order.findAll({
                 where: { 
-                    status: { [Op.in]: ['waiting', 'in_progress'] }
+                    status: 'completed'
                 },
                 order: [['created_at', 'DESC']],
                 include: [
@@ -39,4 +38,4 @@ class GetActiveOrdersController {
     }
 };
 
-export default new GetActiveOrdersController();
+export default new GetCompletedOrdersController();
