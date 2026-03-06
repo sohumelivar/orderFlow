@@ -225,24 +225,19 @@ components:
       properties:
         order:
           $ref: '#/components/schemas/Order'
-    DeleteOrderRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      properties:
-        id:
-          type: integer
-          example: 10
     DeleteOrderResponse:
       type: object
       additionalProperties: false
       required:
       - success
+      - id
       properties:
         success:
           type: boolean
           example: true
+        id:
+          type: integer
+          example: 10
     CompleteOrderRequest:
       type: object
       additionalProperties: false
@@ -684,22 +679,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /orders/delete:
+  /orders/delete/{id}:
     delete:
       summary: Delete order
       description: "Authenticated endpoint. User is identified from JWT access token\
         \ (uid, role). Server verifies that the user has permission to delete the\
-        \ order. Client must NOT send any user identifiers in request body.\n    \
-        \    Note: This endpoint uses requestBody with DELETE.\n"
+        \ order. Client must NOT send any user identifiers in request body."
       operationId: deleteOrder
       security:
       - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeleteOrderRequest'
+      parameters:
+        - name: id
+          id: path
+          required: true
+          schema:
+            type: integer
+            example: 10
       responses:
         '200':
           description: Order deleted successfully

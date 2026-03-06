@@ -1,29 +1,14 @@
 import { Order, PipePair } from '../../models/index.js';
-import ApiError from '../../src/utils/ApiError.js';
 
-class UpdateOrderController {
-    async updateOrder (req, res, next) {
+class UpdateOrderStatusController {
+    async updateOrderStatus (req, res, next) {
         try {
             const data = req.body;
-            const pipe_pair = await PipePair.findOne({
-                where: {
-                    suction_size: data.suction_size,
-                    liquid_size: data.liquid_size,
-                }
-            });
-            if (!pipe_pair) return next(ApiError.badRequest('Invalid request'));
-
-            const updateOrder = {
-                pipe_pair_id: pipe_pair.id,
-                length: data.length,
-                quantity: data.quantity,
-                comment: data?.comment,
-            }
-
-            await Order.update(updateOrder, {
-                where: { id: data.id },
-            });
-
+            await Order.update({
+                status: data.status
+            },{
+                where: {id: data.id}
+            })
             const updatedOrder = await Order.findByPk(data.id, {
                 include: [
                     {
@@ -32,7 +17,6 @@ class UpdateOrderController {
                     }
                 ]
             });
-
             const response = {
                 order: {
                     id: data.id,
@@ -46,12 +30,12 @@ class UpdateOrderController {
                     updated_at: updatedOrder.updated_at,
                     completed_at: updatedOrder.completed_at,
                 }
-            };
-            return res.json(response);
+            }
+            res.json(response); 
         } catch (error) {
             next(error);
         }
     }
 };
 
-export default new UpdateOrderController();
+export default new UpdateOrderStatusController();
