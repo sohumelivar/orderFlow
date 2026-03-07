@@ -7,10 +7,7 @@ class DeleteOrderController {
             await Order.destroy({
                 where: { id }
             })
-            res.json({
-                delete: true,
-                id
-            });
+            return res.json({ delete: true, id });
         } catch (error) {
             next(error);
         }

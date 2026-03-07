@@ -29,8 +29,6 @@ class GetCompletedOrdersController {
                         completed_at: e.completed_at
                     }
             ));
-            console.log('data: ', data.length);
-            
             return res.json({orders: data});
         } catch (error) {
             next(error);

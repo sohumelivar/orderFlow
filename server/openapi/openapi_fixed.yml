@@ -185,6 +185,109 @@ components:
       properties:
         order:
           $ref: '#/components/schemas/Order'
+    PayOrderRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          description: Payment amount
+          example: 100
+    PayOrderResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - payment
+      properties:
+        payment:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - amount
+            - status
+            - owner_id
+            - created_at
+          properties:
+            id:
+              type: integer
+              example: 15
+            amount:
+              type: number
+              example: 250
+            status:
+              type: string
+              example: completed
+            owner_id:
+              type: integer
+              example: 3
+            created_at:
+              type: string
+              format: date-time
+    CompletePaymentResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - payment
+      properties:
+        payment:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - amount
+            - status
+            - owner_id
+            - created_at
+          properties:
+            id:
+              type: integer
+              example: 7
+            amount:
+              type: number
+              example: 250
+            status:
+              type: string
+              example: completed
+            owner_id:
+              type: integer
+              example: 3
+            created_at:
+              type: string
+              format: date-time
+    RejectPaymentResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - payment
+      properties:
+        payment:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - amount
+            - status
+            - owner_id
+            - created_at
+          properties:
+            id:
+              type: integer
+              example: 7
+            amount:
+              type: number
+              example: 250
+            status:
+              type: string
+              example: rejected
+            owner_id:
+              type: integer
+              example: 3
+            created_at:
+              type: string
+              format: date-time
     UpdateOrderRequest:
       type: object
       additionalProperties: false
@@ -487,6 +590,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PaymentHistoryItem'
+    
   responses:
     ForbiddenWithContact:
       description: Access denied (user not in allowlist or role not permitted).
@@ -852,3 +956,108 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/ForbiddenWithContact'
+  /payments/pay_order:
+    post:
+      summary: Create payment
+      description: Authenticated endpoint. Creates a new payment record.
+      operationId: payOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayOrderRequest'
+      responses:
+        '200':
+          description: Payment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayOrderResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenWithContact'
+  /payments/complete/{id}:
+    patch:
+      summary: Complete payment
+      description: Authenticated endpoint. Marks payment as completed.
+      operationId: completePayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: Payment marked as completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletePaymentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenWithContact'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/reject/{id}:
+    patch:
+      summary: Reject payment
+      description: Authenticated endpoint. Marks payment as rejected.
+      operationId: rejectPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: Payment rejected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RejectPaymentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenWithContact'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+

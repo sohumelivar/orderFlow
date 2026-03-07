@@ -33,7 +33,7 @@ class UpdateOrderStatusController {
                     completed_at: order.completed_at,
                 }
             }
-            res.json(response); 
+            return res.json(response); 
         } catch (error) {
             next(error);
         }
