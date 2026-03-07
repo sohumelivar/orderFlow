@@ -15,7 +15,7 @@ router.get('/active', authRequired, getActiveOrdersController.getActiveOrders);
 router.get('/completed', authRequired, getCompletedOrdersController.getCompletedOrders);
 router.patch('/update', authRequired, updateOrderController.updateOrder);
 router.patch('/complete', authRequired, completeOrderController.completeOrder);
-router.patch('/update-status', authRequired, updateOrderStatusController.updateOrderStatus);
+router.patch('/update-status/:id', authRequired, updateOrderStatusController.updateOrderStatus);
 router.delete('/delete/:id', authRequired, deleteOrderController.deleteOrder);
 
 export default router;

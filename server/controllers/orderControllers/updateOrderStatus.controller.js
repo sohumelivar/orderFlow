@@ -1,15 +1,11 @@
 import { Order, PipePair } from '../../models/index.js';
+import ApiError from '../../src/utils/ApiError.js';
 
 class UpdateOrderStatusController {
     async updateOrderStatus (req, res, next) {
         try {
-            const data = req.body;
-            await Order.update({
-                status: data.status
-            },{
-                where: {id: data.id}
-            })
-            const updatedOrder = await Order.findByPk(data.id, {
+            const id = Number(req.params.id);
+            const order = await Order.findByPk(id, {
                 include: [
                     {
                         model: PipePair,
@@ -17,18 +13,24 @@ class UpdateOrderStatusController {
                     }
                 ]
             });
+
+            if (!order) return next(ApiError.badRequest('Invalid request'));
+            if (order.status === 'completed') return next(ApiError.badRequest('Invalid request'));
+
+            const newStatus = order.status === 'waiting' ? 'in_progress' : 'waiting';
+            await order.update({status: newStatus});
             const response = {
                 order: {
-                    id: data.id,
-                    suction_size: updatedOrder.PipePair.suction_size,
-                    liquid_size: updatedOrder.PipePair.liquid_size,
-                    length: Number(updatedOrder.length),
-                    quantity: updatedOrder.quantity,
-                    status: updatedOrder.status,
-                    created_at: updatedOrder.created_at,
-                    comment: updatedOrder.comment,
-                    updated_at: updatedOrder.updated_at,
-                    completed_at: updatedOrder.completed_at,
+                    id: order.id,
+                    suction_size: order.PipePair.suction_size,
+                    liquid_size: order.PipePair.liquid_size,
+                    length: Number(order.length),
+                    quantity: order.quantity,
+                    status: newStatus,
+                    created_at: order.created_at,
+                    comment: order.comment,
+                    updated_at: order.updated_at,
+                    completed_at: order.completed_at,
                 }
             }
             res.json(response); 

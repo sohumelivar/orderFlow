@@ -718,7 +718,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /orders/update-status:
+  /orders/update-status/{id}:
     patch:
       summary: Update order status
       description: 'Authenticated endpoint. User is identified from JWT access token
@@ -729,12 +729,13 @@ paths:
       operationId: updateOrderStatus
       security:
       - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateOrderStatusRequest'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          scheme:
+            type: integer
+            example: 10
       responses:
         '200':
           description: Updated order after status change
