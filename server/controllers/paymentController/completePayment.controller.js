@@ -5,10 +5,15 @@ class CompletePaymentController {
     async completePayment (req, res, next) {
         try {
             const id = Number(req.params.id);
-            if (req.user.role !== 'manufacturer') return next(ApiError.badRequest('Invalid role'));
+            // if (req.user.role !== 'manufacturer') return next(ApiError.badRequest('Invalid role'));
             const payment = await Payment.findByPk(id);
-            console.log('payment --->>>: ', payment);
-            await payment.update({status: 'accepted'});
+            //! !!!!!!!!!!!!!!!!!!!!
+            const now = new Date();
+            await payment.update({status: 'pending',
+                //!!!!
+                created_at: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15))
+                //!!!!
+            });
             return res.json({payment});
         } catch (error) {
             next(error);

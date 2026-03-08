@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authRequired } from '../middlewares/checkAuth.js';
-import statsController from '../controllers/stats.controller.js';
+import statsController from '../controllers/stats.controller/stats.controller.js';
 
 const router = Router();
 
