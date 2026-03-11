@@ -1,5 +1,5 @@
 import ApiError from '../../src/utils/ApiError.js';
-import { buildLastMonthStats } from '../../services/stats/stats.service.js';
+import { buildLastMonthStats, buildLastWeekStats, buildAllTimeStats } from '../../services/stats/stats.service.js';
 
 class StatsController {
     async getStats (req, res, next) {
@@ -10,11 +10,12 @@ class StatsController {
                     const summary = await buildLastMonthStats();
                     return res.json(summary);
                 } else if (period === 'last_week') {
-                    console.log('last week');
+                    const summary = await buildLastWeekStats();
+                    return res.json(summary);
                 } else if (period === 'all_time') {
-                    console.log('all time');
+                    const summary = await buildAllTimeStats();
+                    return res.json(summary);
                 }
-                
             } else {
                 if(month && year) {
                     console.log('month: ', month);

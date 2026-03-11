@@ -12,18 +12,12 @@ class UpdateOrderController {
                 }
             });
             if (!pipe_pair) return next(ApiError.badRequest('Invalid request'));
-//  !!!!!!!!!!!!!!!
-            const now = new Date();
-//  !!!!!!!!!!!!!!!
+
             const updateOrder = {
                 pipe_pair_id: pipe_pair.id,
                 length: data.length,
                 quantity: data.quantity,
                 comment: data?.comment,
-//  !!!!!!!!!!!!!!!
-                status: 'completed',
-                created_at: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15))
-//  !!!!!!!!!!!!!!!
             }
 
             await Order.update(updateOrder, {
