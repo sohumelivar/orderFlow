@@ -10,7 +10,8 @@ import {
 } from './stats.queries.js';
 import {
     getLastMonthRange,
-    getLastWeekRange
+    getLastWeekRange,
+    buildCustomMonthRange,
 } from './stats.ranges.js';
 
 
@@ -46,32 +47,31 @@ function buildSummary(completedOrders, acceptedPayments, pendingPaymentsData, pa
     let total_amount = 0;
 
     for (const order of completedOrders) {
+        const name = order.PipePair.display_name;
 
-    const name = order.PipePair.display_name;
+        if (!orders[name]) {
+            orders[name] = {
+            display_name: name,
+            quantity: 0,
+            total_meter: 0,
+            amount: 0
+            };
+        }
 
-    if (!orders[name]) {
-        orders[name] = {
-        display_name: name,
-        quantity: 0,
-        total_meter: 0,
-        amount: 0
-        };
-    }
+        const quantity = Number(order.quantity);
+        const length = Number(order.length);
+        const price = Number(order.price_per_meter);
 
-    const quantity = Number(order.quantity);
-    const length = Number(order.length);
-    const price = Number(order.price_per_meter);
+        const meter = length * quantity;
+        const amount = meter * price;
 
-    const meter = length * quantity;
-    const amount = meter * price;
+        orders[name].quantity += quantity;
+        orders[name].total_meter += meter;
+        orders[name].amount += amount;
 
-    orders[name].quantity += quantity;
-    orders[name].total_meter += meter;
-    orders[name].amount += amount;
-
-    total_quantity += quantity;
-    total_meter += meter;
-    total_amount += amount;
+        total_quantity += quantity;
+        total_meter += meter;
+        total_amount += amount;
     }
 
     const pipe_type_statistics = {
@@ -128,6 +128,19 @@ export async function buildAllTimeStats() {
         getAllAcceptedPayments(),
         getAllPendingPayments(),
         getAllPayments()
+    ]);
+
+    return buildSummary(completedOrders, acceptedPayments, pendingPayments, payments);
+};
+
+export async function buildACustomMonthStats(month, year) {
+    const { start, end } = buildCustomMonthRange(month, year);
+
+    const [completedOrders, acceptedPayments, pendingPayments, payments] = await Promise.all([
+        getCompletedOrdersByRange(start, end),
+        getAcceptedPaymentsByRange(start, end),
+        getPendingPaymentsByRange(start, end),
+        getAllPaymentsByRange(start, end)
     ]);
 
     return buildSummary(completedOrders, acceptedPayments, pendingPayments, payments);

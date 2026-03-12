@@ -16,7 +16,7 @@ export async function getCompletedOrdersByRange(start, end) {
             }
         ]
     });
-}
+};
 
 export async function getAcceptedPaymentsByRange(start, end) {
     return Payment.findAll({
@@ -28,7 +28,7 @@ export async function getAcceptedPaymentsByRange(start, end) {
             },
         },
     });
-}
+};
 
 export async function getPendingPaymentsByRange(start, end) {
     return Payment.findAll({
@@ -41,7 +41,7 @@ export async function getPendingPaymentsByRange(start, end) {
         },
         order: [['created_at', 'DESC']]
     });
-}
+};
 
 export async function getAllPaymentsByRange(start, end) {
     const payments = await Payment.findAll({
@@ -59,7 +59,7 @@ export async function getAllPaymentsByRange(start, end) {
         amount: Number(p.amount),
         status: p.status,
     }));
-}
+};
 
 export async function getAllCompletedOrders() {
     return Order.findAll({
@@ -72,7 +72,7 @@ export async function getAllCompletedOrders() {
             }
         ]
     });
-}
+};
 
 export async function getAllAcceptedPayments() {
     return Payment.findAll({
@@ -80,7 +80,7 @@ export async function getAllAcceptedPayments() {
             status: 'accepted',
         },
     });
-}
+};
 
 export async function getAllPendingPayments() {
     return Payment.findAll({
@@ -88,11 +88,10 @@ export async function getAllPendingPayments() {
             status: 'pending',
         },
     });
-}
+};
 
 export async function getAllPayments() {
     return Payment.findAll({
         order: [['created_at', 'DESC']]
     });
-
-}
+};

@@ -1,5 +1,10 @@
 import ApiError from '../../src/utils/ApiError.js';
-import { buildLastMonthStats, buildLastWeekStats, buildAllTimeStats } from '../../services/stats/stats.service.js';
+import { 
+    buildLastMonthStats,
+    buildLastWeekStats,
+    buildAllTimeStats,
+    buildACustomMonthStats,
+} from '../../services/stats/stats.service.js';
 
 class StatsController {
     async getStats (req, res, next) {
@@ -17,12 +22,10 @@ class StatsController {
                     return res.json(summary);
                 }
             } else {
-                if(month && year) {
-                    console.log('month: ', month);
-                    console.log('year', year);
-                }
+                    const summary = await buildACustomMonthStats(month, year);
+                    return res.json(summary);
             }
-            return res.json('test');
+            return next(ApiError.badRequest('Invalid request'));
         } catch (error) {
             next(error);
         }
