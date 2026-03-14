@@ -9,11 +9,8 @@ export function createApp() {
     app.use(helmet());
     app.use(cors());
     app.use(express.json());
-    
     app.use('/api', apiRouter);
-
     app.use(notFound);
     app.use(errorHandler);
-
     return app;
 };

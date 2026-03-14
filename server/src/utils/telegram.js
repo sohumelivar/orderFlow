@@ -5,9 +5,7 @@ export function verifyTelegramInitData(initData, botToken) {
     const params = new URLSearchParams(initData);
     const hash = params.get('hash');
     if (!hash) return false;
-
     params.delete('hash');
-
     const pairs = [];
     for (const [k, v] of params.entries()) pairs.push([k, v]);
     pairs.sort(([a], [b]) => (a > b ? 1 : a < b ? -1 : 0));
@@ -33,4 +31,4 @@ export function verifyTelegramInitData(initData, botToken) {
   } catch {
     return false;
   }
-}
+};
