@@ -1,4 +1,6 @@
 import { PipePair, Order } from "../../models/index.js";
+import { Op } from 'sequelize';
+
 
 export async function getPipePair(suction_size, liquid_size) {
     return PipePair.findOne({
@@ -28,7 +30,7 @@ export async function createNewOrder(data, userId, pipePairId) {
     });
 };
 
-export async function getOrderById (id) {
+export async function getOrderById(id) {
     return Order.findByPk(id, {
         include: [
             {
@@ -52,4 +54,42 @@ export async function createNewOrderAfterComplete(order, completedQuantity, user
         completed_at: new Date(),
         ...(order.comment && {comment: order.comment})
     });
-}
+};
+
+export async function destroyOrder(id) {
+    return  Order.destroy({where: {id}});
+};
+
+export async function getActiveOrders() {
+    return Order.findAll({
+        where: { 
+            status: { [Op.in]: ['waiting', 'in_progress'] }
+        },
+        order: [['created_at', 'DESC']],
+        include: [
+            {
+                model: PipePair,
+                attributes: ['id', 'suction_size', 'liquid_size', 'display_name']
+            }
+        ]
+    });
+};
+
+export async function getCompletedOrders() {
+    return Order.findAll({
+        where: { 
+            status: 'completed'
+        },
+        order: [['created_at', 'DESC']],
+        include: [
+            {
+                model: PipePair,
+                attributes: ['id', 'suction_size', 'liquid_size', 'display_name']
+            }
+        ]
+    });
+};
+
+export async function updatedOrder(order, id) {
+    return Order.update(order, {where: {id}});
+};

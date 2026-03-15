@@ -6,8 +6,8 @@ class CreateOrderController {
         try {
             const data = req.body;
             if (!data) return next(ApiError.badRequest('Invalid request'));
-            const summary = await createOrderService(req.body, req.user);
-            return res.json(summary);
+            const newOrder = await createOrderService(req.body, req.user);
+            return res.json(newOrder);
         } catch (error) {
             next(error);
         }

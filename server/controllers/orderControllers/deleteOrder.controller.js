@@ -1,13 +1,14 @@
-import { Order } from '../../models/index.js';
+import { deleteOrder } from '../../services/orders/orders.service.js';
 
 class DeleteOrderController {
     async deleteOrder (req, res, next) {
         try {
             const id = Number(req.params.id);
-            await Order.destroy({
-                where: { id }
-            })
-            return res.json({ delete: true, id });
+            await deleteOrder(id);
+            return res.json({
+                success: true,
+                id
+            });
         } catch (error) {
             next(error);
         }
