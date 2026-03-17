@@ -6,7 +6,8 @@ import {
     destroyOrder,
     getActiveOrders,
     getCompletedOrders,
-    updatedOrder
+    updatedOrder,
+    updateOrderStatus
 } from "./orders.queries.js";
 import ApiError from "../../src/utils/ApiError.js";
 
@@ -103,4 +104,12 @@ export async function updateOrderService(data) {
     await updatedOrder(updateOrder, data.id);
     const order = await getOrderById(data.id);
     return buildSummary(order);
+};
+
+export async function updateOrderStatusService (id) {
+    const order = await getOrderById(id);
+    if (order.status === 'completed' || !order) throw ApiError.badRequest('Invalid request');
+    const newStatus = order.status === 'waiting' ? 'in_progress' : 'waiting';
+    const updatedOrder = await updateOrderStatus(id, newStatus);
+    return buildSummary(updatedOrder);
 };

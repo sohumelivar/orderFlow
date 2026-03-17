@@ -1,4 +1,3 @@
-import { Order, PipePair } from '../../models/index.js';
 import { getCompletedOrdersService } from '../../services/orders/orders.service.js';
 
 class GetCompletedOrdersController {

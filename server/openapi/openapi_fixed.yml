@@ -219,7 +219,7 @@ components:
               example: 250
             status:
               type: string
-              example: completed
+              example: accepted
             owner_id:
               type: integer
               example: 3
@@ -250,7 +250,7 @@ components:
               example: 250
             status:
               type: string
-              example: completed
+              example: accepted
             owner_id:
               type: integer
               example: 3
@@ -989,7 +989,7 @@ paths:
   /payments/complete/{id}:
     patch:
       summary: Complete payment
-      description: Authenticated endpoint. Marks payment as completed.
+      description: Authenticated endpoint. Marks payment as accepted.
       operationId: completePayment
       security:
         - bearerAuth: []
@@ -1002,7 +1002,7 @@ paths:
             example: 7
       responses:
         '200':
-          description: Payment marked as completed
+          description: Payment marked as accepted
           content:
             application/json:
               schema:

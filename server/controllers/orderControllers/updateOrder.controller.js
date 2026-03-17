@@ -1,4 +1,3 @@
-import { Order, PipePair } from '../../models/index.js';
 import { updateOrderService } from '../../services/orders/orders.service.js';
 import ApiError from '../../src/utils/ApiError.js';
 

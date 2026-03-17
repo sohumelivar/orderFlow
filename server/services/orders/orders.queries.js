@@ -93,3 +93,15 @@ export async function getCompletedOrders() {
 export async function updatedOrder(order, id) {
     return Order.update(order, {where: {id}});
 };
+
+export async function updateOrderStatus(id, newStatus) {
+    await Order.update({status: newStatus}, {where: {id}})
+    return Order.findByPk(id, {
+        include: [
+            {
+                model: PipePair,
+                attributes: ['id', 'suction_size', 'liquid_size', 'display_name'],
+            }
+        ]
+    });
+};

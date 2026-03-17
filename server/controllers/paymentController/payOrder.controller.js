@@ -1,21 +1,14 @@
-import { Payment } from '../../models/index.js';
-import ApiError from '../../src/utils/ApiError.js';
+import { payOrderService } from '../../services/payments/payments.service.js';
 
 class PayOrderController {
     async payOrder (req, res, next) {
         try {
-            const { amount } = req.body;
-            if ( req.user.role !== 'owner' ) return next(ApiError.badRequest('Invalid request'));
-            const newPayment = await Payment.create({
-                owner_id: req.user.uid,
-                amount,
-                created_at: new Date(),
-            })
+            const newPayment = await payOrderService(req.body.amount, req.user);
             return res.json({ payment: newPayment });
         } catch (error) {
             next(error);
         }
     }
-}
+};
 
 export default new PayOrderController();
