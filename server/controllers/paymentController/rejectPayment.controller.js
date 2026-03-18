@@ -1,15 +1,10 @@
-import { Payment } from '../../models/index.js';
-import ApiError from '../../src/utils/ApiError.js';
+import { rejectPaymentService } from '../../services/payments/payments.service.js';
 
 class RejectPaymentController {
     async rejectPayment (req, res, next) {
         try {
-            const id = Number(req.params.id);
-            if (req.user.role !== 'manufacturer') return next(ApiError.badRequest('Invalid Gi'));
-            const payment = await Payment.findByPk(id);
-            if (payment.status !== 'pending') return next(ApiError.badRequest('Invalid status'));
-            await payment.update({status: 'rejected'});
-            return res.json({payment});
+            const rejectedPayment = await rejectPaymentService(Number(req.params.id), req.user);
+            return res.json({payment: rejectedPayment});
         } catch (error) {
             next(error);
         }

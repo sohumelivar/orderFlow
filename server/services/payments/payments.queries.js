@@ -1,4 +1,5 @@
 import { Payment } from "../../models/index.js";
+import ApiError from "../../src/utils/ApiError.js";
 
 export async function createPayment(amount, user) {
     return Payment.create({
@@ -12,4 +13,10 @@ export async function acceptPayment(id) {
     const payment = await Payment.findByPk(Number(id));
     await payment.update({status: 'accepted'});
     return payment;
+};
+
+export async function rejectPayment(id) {
+    const payment = await Payment.findByPk(id);
+    if (payment.status !== 'pending') throw ApiError.badRequest('Invalid status');
+    return payment.update({status: 'rejected'});
 };
