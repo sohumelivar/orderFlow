@@ -3,12 +3,8 @@ import { deleteOrder } from '../../services/orders/orders.service.js';
 class DeleteOrderController {
     async deleteOrder (req, res, next) {
         try {
-            const id = Number(req.params.id);
-            await deleteOrder(id);
-            return res.json({
-                success: true,
-                id
-            });
+            const deletedOrder = await deleteOrder(Number(req.params.id));
+            return res.json(deletedOrder);
         } catch (error) {
             next(error);
         }

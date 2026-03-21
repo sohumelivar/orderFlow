@@ -1,4 +1,4 @@
-import ApiError from "../../src/utils/ApiError.js";
+import ApiError from "../../utils/ApiError.js";
 import { acceptPayment, createPayment, rejectPayment } from "./payments.queries.js";
 
 export async function payOrderService(amount, user) {

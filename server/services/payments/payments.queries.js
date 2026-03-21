@@ -1,5 +1,5 @@
 import { Payment } from "../../models/index.js";
-import ApiError from "../../src/utils/ApiError.js";
+import ApiError from "../../utils/ApiError.js";
 
 export async function createPayment(amount, user) {
     return Payment.create({

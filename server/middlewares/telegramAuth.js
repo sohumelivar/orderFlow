@@ -1,5 +1,5 @@
-import ApiError from '../src/utils/ApiError.js';
-import { verifyTelegramInitData } from '../src/utils/telegram.js';
+import { verifyTelegramInitData } from '../utils/telegram.js';
+import ApiError from '../utils/ApiError.js';
 
 export function telegramInitDataRequired(req, res, next) {
     const { initData } = req.body || {};

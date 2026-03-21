@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { createApp } from './app.js';
-import { sequelize } from '../db/index.js';
-import { applyAssociations } from '../models/associations.js';
+import { sequelize } from './db/index.js';
+import { applyAssociations } from './models/associations.js';
 
 const app = createApp();
 const PORT = process.env.PORT || 3001;

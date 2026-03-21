@@ -1,3 +1,4 @@
+import { ORDER_STATUS } from "../../constants/order.constants.js";
 import { PipePair, Order } from "../../models/index.js";
 import { Op } from 'sequelize';
 
@@ -47,10 +48,10 @@ export async function createNewOrderAfterComplete(order, completedQuantity, user
         pipe_pair_id: order.pipe_pair_id,
         owner_id: order.owner_id,
         manufacturer_id: userId,
-        length: Number(order.length),
-        quantity: Number(completedQuantity),
-        price_per_meter: Number(order.price_per_meter),
-        status: 'completed',
+        length: order.length,
+        quantity: completedQuantity,
+        price_per_meter: order.price_per_meter,
+        status: ORDER_STATUS.COMPLETED,
         completed_at: new Date(),
         ...(order.comment && {comment: order.comment})
     });

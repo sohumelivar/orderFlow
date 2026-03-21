@@ -1,5 +1,5 @@
-import ApiError from "../../src/utils/ApiError.js";
-import { signAccessToken } from "../../src/utils/jwt.js";
+import ApiError from "../../utils/ApiError.js";
+import { signAccessToken } from "../../utils/jwt.js";
 import { authorization } from "./authorization.queries.js";
 
 export async function authorizationService (initData) {
