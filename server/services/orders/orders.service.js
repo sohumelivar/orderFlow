@@ -82,7 +82,7 @@ export async function completeOrder (data, user) {
 export async function deleteOrder (id) {
     orderValidator.delete(id);
     const order = await getOrderById(id);
-    if (!order || order.status === ORDER_STATUS.IN_PROGRESS) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
+    if (!order || order.status === ORDER_STATUS.IN_PROGRESS || order.status === ORDER_STATUS.COMPLETED) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
     await destroyOrder(id);
     return {success: true, id};
 };
@@ -116,7 +116,7 @@ export async function updateOrderService(data) {
 export async function updateOrderStatusService (id) {
     orderValidator.updateStatus(id);
     const order = await getOrderById(id);
-    if (!order || order.status === ORDER_STATUS.COMPLETED) throw ApiError.badRequest(ERRORS.ORDER_NOT_FOUND);
+    if (!order || order.status === ORDER_STATUS.COMPLETED) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
     const newStatus = order.status === ORDER_STATUS.WAITING ? ORDER_STATUS.IN_PROGRESS : ORDER_STATUS.WAITING;
     const updatedOrder = await updateOrderStatus(id, newStatus);
     return buildSummary(updatedOrder);
