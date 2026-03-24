@@ -45,7 +45,7 @@ function ensureCompleteOrderObject(data) {
 };
 
 function ensureId(id) {
-  if (!id || !Number.isInteger(id)) throw ApiError.badRequest(ERRORS.INVALID_ORDER_ID);
+    if (!id || !Number.isInteger(id)) throw ApiError.badRequest(ERRORS.INVALID_ORDER_ID);
 };
 
 
