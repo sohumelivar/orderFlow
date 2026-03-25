@@ -3,7 +3,7 @@ import { updateOrderStatusService } from '../../services/orders/orders.service.j
 class UpdateOrderStatusController {
     async updateOrderStatus (req, res, next) {
         try {
-            const updatedOrder = await updateOrderStatusService(id);
+            const updatedOrder = await updateOrderStatusService(Number(req.params.id));
             return res.json(updatedOrder); 
         } catch (error) {
             next(error);

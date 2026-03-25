@@ -4,7 +4,7 @@ class RejectPaymentController {
     async rejectPayment (req, res, next) {
         try {
             const rejectedPayment = await rejectPaymentService(Number(req.params.id), req.user);
-            return res.json({payment: rejectedPayment});
+            return res.json(rejectedPayment);
         } catch (error) {
             next(error);
         }

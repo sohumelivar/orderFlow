@@ -1,5 +1,6 @@
 import ApiError from '../../utils/ApiError.js';
 import ERRORS from '../../constants/errors.js';
+import { VALID_ROLES } from '../../constants/auth.constants.js';
 
 function ensureAmount (amount) {
     if (!amount || !Number.isInteger(amount) || amount <= 0) throw ApiError.badRequest(ERRORS.INVALID_AMOUNT);
@@ -11,20 +12,23 @@ function ensureUser(user) {
     if (!VALID_ROLES.has(user.role)) throw ApiError.badRequest(ERRORS.INVALID_ROLE);
 };
 
+function ensureId(id) {
+    if (!id || typeof id !== 'string') throw ApiError.badRequest(ERRORS.INVALID_ORDER_ID);
+};
+
 export const paymentsValidator = {
     pay(user, amount ) {
         ensureUser(user),
         ensureAmount(amount)
     },
 
-    completePayment(user, id) {
+    complete(user, id) {
         ensureUser(user),
-        ensureAmount(amount)
+        ensureId(id)
     },
 
     rejectPayment(user, id) {
+        ensureUser(user);
         ensureAmount(id);
-        ensureUser(user),
-
     },
 };

@@ -61,7 +61,7 @@ export async function completeOrder (data, user) {
     orderValidator.complete(data, user);    
     const { id, completed_quantity } = data;
     const order = await getOrderById (id);
-    if (!order || order.status === ORDER_STATUS.COMPLETED) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
+    if (!order || order.status !== ORDER_STATUS.IN_PROGRESS) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
     if (completed_quantity > order.quantity) throw ApiError.badRequest(ERRORS.INVALID_QUANTITY);
     if (completed_quantity === order.quantity) {
         await order.update({
@@ -99,6 +99,9 @@ export async function getCompletedOrdersService() {
 
 export async function updateOrderService(data) {
     orderValidator.update(data);
+    const checkOrderStatus = await getOrderById(data.id);
+    if (!checkOrderStatus || checkOrderStatus.status !== ORDER_STATUS.WAITING) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
+
     const pipePair = await getPipePair(data.suction_size, data.liquid_size);
     if (!pipePair) throw ApiError.badRequest(ERRORS.INVALID_PIPE_PAIR);
     const updateOrder = {
@@ -114,6 +117,8 @@ export async function updateOrderService(data) {
 };
 
 export async function updateOrderStatusService (id) {
+    console.log('id: ', typeof id);
+    
     orderValidator.updateStatus(id);
     const order = await getOrderById(id);
     if (!order || order.status === ORDER_STATUS.COMPLETED) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);

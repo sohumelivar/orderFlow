@@ -4,7 +4,7 @@ class CompletePaymentController {
     async completePayment (req, res, next) {
         try {
             const acceptedPayment = await completePaymentService(req.params.id, req.user);
-            return res.json({payment: acceptedPayment});
+            return res.json(acceptedPayment);
         } catch (error) {
             next(error);
         }

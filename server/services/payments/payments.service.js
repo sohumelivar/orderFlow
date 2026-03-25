@@ -1,22 +1,37 @@
+import ERRORS from "../../constants/errors.js";
+import { PAYMENT_STATUS } from "../../constants/payment.constants.js";
+import { Payment } from "../../models/Payment.js";
 import ApiError from "../../utils/ApiError.js";
-import { acceptPayment, createPayment, rejectPayment } from "./payments.queries.js";
+import { acceptPayment, createPayment, getPaymentById, rejectPayment } from "./payments.queries.js";
+import { paymentsValidator } from "./payments.validator.js";
+
+function buildPayment (payment) {
+    return {
+        payment: payment
+    }
+}
 
 export async function payOrderService(amount, user) {
-    if (user.role !== 'owner' ) throw ApiError.badRequest('Invalid request 1');
-    return await createPayment(amount, user);
+    paymentsValidator.pay(user, amount);
+    if (user.role !== 'owner' ) throw ApiError.badRequest(ERRORS.INVALID_ROLE);
+    const createdPayment = await createPayment(amount, user);
+    return buildPayment(createdPayment);
 };
 
 export async function completePaymentService(id, user) {
-    if (user.role !== 'manufacturer') throw ApiError.badRequest('Invalid role');
-    return acceptPayment(id)
+    paymentsValidator.complete(user, id);
+    if (user.role !== 'manufacturer') throw ApiError.badRequest(ERRORS.INVALID_ROLE);
+    const payment = await getPaymentById(id);
+    if (!payment || payment.status !== PAYMENT_STATUS.PENDING) throw ApiError.badRequest(ERRORS.PAYMENT_FAILED);
+    const acceptedPayment = await acceptPayment(payment);
+    return buildPayment(acceptedPayment);
 };
 
 export async function rejectPaymentService(id, user) {
+    paymentsValidator.rejectPayment(user, id);
     if (user.role !== 'manufacturer') throw ApiError.badRequest('Invalid request');
-    const rejectedPayment = await rejectPayment(id);
-    return rejectedPayment;
-};
-
-function ensureId(id) {
-    if (!id || !Number.isInteger(id)) throw ApiError.badRequest(ERRORS.INVALID_ORDER_ID);
+    const payment = await getPaymentById(id);
+    if (!payment || payment.status !== PAYMENT_STATUS.PENDING) throw ApiError.badRequest(ERRORS.PAYMENT_FAILED);
+    const rejectedPayment = await rejectPayment(payment);
+    return buildPayment(rejectedPayment);
 };

@@ -4,7 +4,7 @@ class PayOrderController {
     async payOrder (req, res, next) {
         try {
             const newPayment = await payOrderService(req.body.amount, req.user);
-            return res.json({ payment: newPayment });
+            return res.json(newPayment);
         } catch (error) {
             next(error);
         }
