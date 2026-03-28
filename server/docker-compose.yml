@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    container_name: orderflow_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: orderflow
+      POSTGRES_USER: orderflow
+      POSTGRES_PASSWORD: orderflow_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - orderflow_pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: orderflow_app
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+
+volumes:
+  orderflow_pgdata:
