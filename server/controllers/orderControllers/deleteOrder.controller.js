@@ -8,7 +8,7 @@ class DeleteOrderController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new DeleteOrderController();

@@ -8,7 +8,7 @@ class UpdateOrderController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new UpdateOrderController();

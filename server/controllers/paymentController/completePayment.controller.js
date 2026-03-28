@@ -8,7 +8,7 @@ class CompletePaymentController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new CompletePaymentController();

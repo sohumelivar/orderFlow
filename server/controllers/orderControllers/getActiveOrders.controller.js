@@ -8,7 +8,7 @@ class GetActiveOrdersController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new GetActiveOrdersController();

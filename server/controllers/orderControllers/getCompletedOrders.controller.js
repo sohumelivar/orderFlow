@@ -8,7 +8,7 @@ class GetCompletedOrdersController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new GetCompletedOrdersController();

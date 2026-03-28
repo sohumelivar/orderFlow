@@ -8,7 +8,7 @@ class RejectPaymentController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new RejectPaymentController();

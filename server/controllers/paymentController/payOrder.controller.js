@@ -8,7 +8,7 @@ class PayOrderController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 };
 
 export default new PayOrderController();

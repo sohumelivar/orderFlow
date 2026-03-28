@@ -28,8 +28,8 @@ function buildSummary(newOrder) {
             completed_at: newOrder.completed_at,
             ...(newOrder.comment && { comment: String(newOrder.comment) }),
         }
-    }
-}
+    };
+};
 
 function buildOrdersArray (activeOrders) {
     const data = activeOrders.map((e) => (
@@ -117,8 +117,6 @@ export async function updateOrderService(data) {
 };
 
 export async function updateOrderStatusService (id) {
-    console.log('id: ', typeof id);
-    
     orderValidator.updateStatus(id);
     const order = await getOrderById(id);
     if (!order || order.status === ORDER_STATUS.COMPLETED) throw ApiError.badRequest(ERRORS.INVALID_REQUEST);
