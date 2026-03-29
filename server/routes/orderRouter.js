@@ -11,8 +11,8 @@ import updateOrderStatusController from '../controllers/orderControllers/updateO
 const router = Router();
 
 router.post('/create', authRequired, orderController.createOrder);
-router.get('/active', authRequired, getActiveOrdersController.getActiveOrders);
-router.get('/completed', authRequired, getCompletedOrdersController.getCompletedOrders);
+router.get('/active', getActiveOrdersController.getActiveOrders);
+router.get('/completed', getCompletedOrdersController.getCompletedOrders);
 router.patch('/update', authRequired, updateOrderController.updateOrder);
 router.patch('/complete', authRequired, completeOrderController.completeOrder);
 router.patch('/update-status/:id', authRequired, updateOrderStatusController.updateOrderStatus);
