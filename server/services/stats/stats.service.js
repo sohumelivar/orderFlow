@@ -145,3 +145,30 @@ export async function buildACustomMonthStats(month, year) {
 
     return buildSummary(completedOrders, acceptedPayments, pendingPayments, payments);
 };
+
+export async function buildCustomYearStats(year) {
+    const now = new Date();
+    const currentYear = now.getUTCFullYear();
+    const currentMonth = now.getUTCMonth() + 1;
+
+    const start = new Date(Date.UTC(year, 0, 1));
+
+    const end =
+        year === currentYear
+        ? new Date(Date.UTC(year, currentMonth, 1))
+        : new Date(Date.UTC(year + 1, 0, 1));
+
+    const [completedOrders, acceptedPayments, pendingPayments, payments] = await Promise.all([
+        getCompletedOrdersByRange(start, end),
+        getAcceptedPaymentsByRange(start, end),
+        getPendingPaymentsByRange(start, end),
+        getAllPaymentsByRange(start, end),
+    ]);
+
+    return buildStatsSummary(
+        completedOrders,
+        acceptedPayments,
+        pendingPayments,
+        payments,
+    );
+};
