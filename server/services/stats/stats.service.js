@@ -165,7 +165,7 @@ export async function buildCustomYearStats(year) {
         getAllPaymentsByRange(start, end),
     ]);
 
-    return buildStatsSummary(
+    return buildSummary(
         completedOrders,
         acceptedPayments,
         pendingPayments,
